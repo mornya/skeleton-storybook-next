@@ -1,0 +1,73 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "node",
+    "target": "es5",
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types"
+    ],
+    "types": [
+      "jest",
+      "node",
+      "react",
+      "react-dom",
+      "webpack-env"
+    ],
+    "lib": [
+      "esnext",
+      "esnext.asynciterable",
+      "dom",
+      "dom.iterable",
+      "scripthost"
+    ],
+    "paths": {
+      "@/*": ["./src/*"],
+      "~/*": ["./*"],
+      "@@/*": ["./src/*"],
+      "~~/*": ["./*"]
+    },
+    "charset": "utf8",
+    "baseUrl": ".",
+    "outDir": "./dist/",
+    "jsx": "react",
+    "importsNotUsedAsValues": "preserve",
+    "declaration": false,
+    "esModuleInterop": true,
+    "downlevelIteration": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "checkJs": false,
+    "strict": true,
+    "sourceMap": false,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": true,
+    "experimentalDecorators": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "forceConsistentCasingInFileNames": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "incremental": true
+  },
+  "include": [
+    "types/**/*",
+    "pages/**/*",
+    "src/**/*",
+    "stories/**/*",
+    "next-env.d.ts"
+  ],
+  "exclude": [
+    "coverage",
+    "public",
+    "src/assets",
+    "stories/assets",
+    "dist",
+    ".idea",
+    ".git",
+    ".next",
+    ".vscode"
+  ]
+}
