@@ -26,7 +26,7 @@ module.exports = {
   ],
   framework: '@storybook/react',
   core: {
-    'builder': 'webpack5',
+    builder: 'webpack5',
   },
   webpackFinal: async (config) => {
     config.resolve.alias['@'] = appPath.src;
@@ -43,6 +43,7 @@ module.exports = {
       Log.failure('@lintest/cli was not installed or have to run "lintest install"!');
     }
 
+    const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
     /** @type {import('fork-ts-checker-webpack-plugin/lib/ForkTsCheckerWebpackPluginOptions').ForkTsCheckerWebpackPluginOptions} */
     const nextOption = {
       async: true,
@@ -51,23 +52,27 @@ module.exports = {
         configFile: `${appPath.root}/tsconfig.json`,
       },
       // dev 빌드시 eslint 룰셋 적용한 lint 실행
-      eslint: !!eslintConfig ? {
-        enabled: true,
-        files: [
-          `${appPath.pages}/**/*.{ts,tsx,js,jsx}`,
-          `${appPath.src}/**/*.{ts,tsx,js,jsx}`,
-          `${appPath.stories}/**/*.stories.{ts,tsx,js,jsx}`,
-        ],
-        options: eslintConfig.eslintOptions || {},
-      } : {},
+      eslint: !!eslintConfig
+        ? {
+            enabled: true,
+            files: [
+              `${appPath.src}/**/*.stories.{ts,tsx,js,jsx}`,
+              `${appPath.stories}/**/*.{ts,tsx,js,jsx}`,
+            ],
+            options: eslintConfig.eslintOptions || {},
+          }
+        : {},
     };
-    const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-
-    config.plugins = config.plugins
-      .filter(plugin => !(
-        plugin instanceof ForkTsCheckerWebpackPlugin
-      ));
+    config.plugins = config.plugins.filter(plugin => !(plugin instanceof ForkTsCheckerWebpackPlugin));
     config.plugins.push(new ForkTsCheckerWebpackPlugin(nextOption));
+
+    // SVG: 인라인 이미지로 불러올 수 있도록 처리
+    const imageRule = config.module.rules.find((rule) => rule.test.test('.svg'));
+    imageRule.exclude = /\.svg$/;
+    config.module.rules.unshift({
+      test: /\.svg$/,
+      use: ['@svgr/webpack', 'url-loader'], // url-loader는 next.js에 포함
+    });
 
     return config;
   },

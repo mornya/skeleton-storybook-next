@@ -30,7 +30,7 @@
     "charset": "utf8",
     "baseUrl": ".",
     "outDir": "./dist/",
-    "jsx": "preserve",
+    "jsx": "react",
     "importsNotUsedAsValues": "preserve",
     "declaration": false,
     "esModuleInterop": true,

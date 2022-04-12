@@ -68,6 +68,7 @@ const nextConfig = {
           Log.error('@lintest/cli was not installed or have to run "lintest install"!');
         }
 
+        const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
         /** @type {import('fork-ts-checker-webpack-plugin/lib/ForkTsCheckerWebpackPluginOptions').ForkTsCheckerWebpackPluginOptions} */
         const nextOption = {
           async: true,
@@ -85,11 +86,8 @@ const nextConfig = {
             options: eslintConfig.eslintOptions || {},
           } : {},
         };
-        const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
-        config.plugins = config.plugins.filter(plugin => !(
-          plugin instanceof ForkTsCheckerWebpackPlugin
-        ));
+        config.plugins = config.plugins.filter(plugin => !(plugin instanceof ForkTsCheckerWebpackPlugin));
         config.plugins.push(new ForkTsCheckerWebpackPlugin(nextOption));
       }
     }

@@ -1,5 +1,7 @@
+/** @type {import('@lintest/core/lintest').Lintest.ConsumerConfig} */
 module.exports = {
   provider: 'mornya',
+  framework: 'next',
 
   // Use extra additional ESLint plugins
   installPlugins: ['eslint-plugin-storybook'],
