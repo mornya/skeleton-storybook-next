@@ -33,6 +33,7 @@ module.exports = {
     config.resolve.alias['~'] = appPath.root;
     config.resolve.alias['@@'] = appPath.src;
     config.resolve.alias['~~'] = appPath.root;
+    config.resolve.alias['next/config'] = path.join(__dirname, './mock-next.config.js'); // Mocking next/config
 
     // 타입 체커 실행
     const eslintConfig = {};
