@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 
 const Empty = () => {
@@ -7,6 +8,7 @@ const Empty = () => {
       <section>
         <h2>Empty story for temporary</h2>
         <p>This is a story that will only exist for a while.</p>
+        <Link href="/">Click here to go Home</Link> (...will it be go?)
       </section>
     </article>
   );
