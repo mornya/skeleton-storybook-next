@@ -22,15 +22,23 @@
       "scripthost"
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "~/*": ["./*"],
-      "@@/*": ["./src/*"],
-      "~~/*": ["./*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "~/*": [
+        "./*"
+      ],
+      "@@/*": [
+        "./src/*"
+      ],
+      "~~/*": [
+        "./*"
+      ]
     },
     "charset": "utf8",
     "baseUrl": ".",
     "outDir": "./dist/",
-    "jsx": "react",
+    "jsx": "preserve",
     "importsNotUsedAsValues": "preserve",
     "declaration": false,
     "esModuleInterop": true,
