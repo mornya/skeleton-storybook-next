@@ -1,39 +1,48 @@
 const { Files, Log, chalk } = require('@mornya/cli-libs'); // command line spawn tool
-const withImages = require('next-images');
+const withImages = require('next-images'); // importable images to variable
 
-// 프로덕션 모드 여부
-const isProduction = process.env.NODE_ENV === 'production';
-// 경로 선언
+// Node.js 환경변수 선언 값
+const { NODE_ENV, BASE_PATH } = process.env;
+/**
+ * 프로덕션 모드 여부
+ * @type {boolean}
+ */
+const isProduction = NODE_ENV === 'production';
+/**
+ * 경로 선언
+ * @type {Record<'root'|'pages'|'src'|'scss', string>}
+ */
 const appPath = {
   root: Files.resolvePath(),
   pages: Files.resolvePath('pages'),
   src: Files.resolvePath('src'),
+  scss: Files.resolvePath('src', 'assets', 'scss'),
 };
 
-/** @type {import('next').NextConfig} */
+/**
+ * Next.js Configuration
+ * @type {import('next').NextConfig}
+ */
 const nextConfig = {
+  basePath: BASE_PATH,
+  assetPrefix: BASE_PATH,
+  compress: isProduction, // gzip compression for rendered content and static files
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
   reactStrictMode: true,
-  webpack5: true,
-  amp: false,
-  esModule: true,
-  inlineImageLimit: 16384,
-  cssLoaderOptions: {
-    importLoaders: 1,
-    localIdentName: '[local]', // '[local]-[hash:base64:5]',
+  images: {
+    disableStaticImages: true,
+    domains: [
+      'mornya.github.io',
+    ],
   },
-  sassLoaderOptions: {
-    sassOptions: {
-      includePaths: ['src', 'node_modules'],
-    },
-    prependData: `
-      @import "~@/assets/scss/variables";
-    `.trim(),
+  sassOptions: {
+    includePaths: [appPath.scss],
   },
-  eslint: false, // lintest 사용을 위해 Next.js 자체 린트기능 비활성화 (.eslintrc 파일제거로 해결)
+  eslint: { ignoreDuringBuilds: true }, // lintest 사용을 위해 Next.js 자체 린트기능 비활성화 (.eslintrc 파일제거로 해결)
+  swcMinify: isProduction, // minification by using SWC
 
-  webpack(config, { isServer, buildId, webpack }) {
+  webpack(config, { isServer, buildId /*, webpack*/ }) {
     // === COMMON BUILD ===
 
     config.resolve.alias['@'] = appPath.src;
@@ -60,35 +69,32 @@ const nextConfig = {
       // === CLIENT BUILD ONLY ===
       if (!isProduction) {
         // 타입 체커 실행
-        const eslintConfig = {};
         try {
-          eslintConfig.eslintOptions = require('./node_modules/.cache/lintest/info.json').eslintOptions;
-          eslintConfig.eslint = true;
+          const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+          const totalMem = Math.floor(require('os').totalmem() / 1048576); // get OS mem size as MB (totalMem/1024/1024)
+          /** @type {import('fork-ts-checker-webpack-plugin/lib/ForkTsCheckerWebpackPluginOptions').ForkTsCheckerWebpackPluginOptions} */
+          const nextOption = {
+            async: true,
+            typescript: {
+              enabled: !isProduction,
+              configFile: `${appPath.root}/tsconfig.json`,
+              memoryLimit: totalMem > 4096 ? undefined : 1024,
+            },
+            // dev 빌드시 eslint 룰셋 적용한 lint 실행
+            eslint: !isProduction
+              ? {
+                enabled: true,
+                files: [`${appPath.pages}/**/*.{ts,tsx,js,jsx}`, `${appPath.src}/**/*.{ts,tsx,js,jsx}`],
+                options: require('./node_modules/.cache/lintest/info.json').eslintOptions ?? {},
+                memoryLimit: totalMem > 4096 ? undefined : 1024,
+              }
+              : {},
+          };
+          config.plugins = config.plugins.filter((plugin) => !(plugin instanceof ForkTsCheckerWebpackPlugin));
+          config.plugins.push(new ForkTsCheckerWebpackPlugin(nextOption));
         } catch (e) {
           Log.error('@lintest/cli was not installed or have to run "lintest install"!');
         }
-
-        const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-        /** @type {import('fork-ts-checker-webpack-plugin/lib/ForkTsCheckerWebpackPluginOptions').ForkTsCheckerWebpackPluginOptions} */
-        const nextOption = {
-          async: true,
-          typescript: {
-            enabled: true,
-            configFile: `${appPath.root}/tsconfig.json`,
-          },
-          // dev 빌드시 eslint 룰셋 적용한 lint 실행
-          eslint: !!eslintConfig ? {
-            enabled: true,
-            files: [
-              `${appPath.pages}/**/*.{ts,tsx,js,jsx}`,
-              `${appPath.src}/**/*.{ts,tsx,js,jsx}`,
-            ],
-            options: eslintConfig.eslintOptions || {},
-          } : {},
-        };
-
-        config.plugins = config.plugins.filter(plugin => !(plugin instanceof ForkTsCheckerWebpackPlugin));
-        config.plugins.push(new ForkTsCheckerWebpackPlugin(nextOption));
       }
     }
 
