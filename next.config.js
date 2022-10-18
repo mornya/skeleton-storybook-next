@@ -72,6 +72,7 @@ const nextConfig = {
         try {
           const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
           const totalMem = Math.floor(require('os').totalmem() / 1048576); // get OS mem size as MB (totalMem/1024/1024)
+          // memoryLimit은 젠킨스 등 빌드서버 메모리가 작을 경우를 대비, 사용가능 메모리가 2048MB로 고정되어있는 설정을 변경함
           /** @type {import('fork-ts-checker-webpack-plugin/lib/ForkTsCheckerWebpackPluginOptions').ForkTsCheckerWebpackPluginOptions} */
           const nextOption = {
             async: true,
